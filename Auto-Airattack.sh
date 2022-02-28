@@ -79,8 +79,7 @@ echo "example: nearby -> 1m, almost distant -> 10m, very distant -> 30m"
 echo " " && sleep 2
 qterminal -e 'nano attacktime.txt'
 echo " "
-mkdir "hands-$(sed 's/://g' macadress.txt)" || echo "(the folder already exists...)"
-echo " "
+mkdir "hands-$(sed 's/://g' macadress.txt)" || echo "(the folder already exists...)\n "
 
 # grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | awk '{print $6}' | sed 's/,//g'
 # grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d ',' -f 4 | sed 's/[ ]//g'
