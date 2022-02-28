@@ -81,7 +81,7 @@ echo " "
 sleep 2
 qterminal -e 'nano attacktime.txt'
 echo " "
-mkdir "hands-$(sed 's/://g' macadress.txt)" || echo "(the folder already exists...)\n "
+mkdir "hands-$(sed 's/://g' macadress.txt)" || echo -e "(the folder already exists...)\n "
 
 # grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | awk '{print $6}' | sed 's/,//g'
 # grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d ',' -f 4 | sed 's/[ ]//g'
@@ -92,6 +92,8 @@ mkdir "hands-$(sed 's/://g' macadress.txt)" || echo "(the folder already exists.
 sleep 3
 
 xterm -geometry '85x25+403+0' -e 'airodump-ng -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d") --bssid $(cat macadress.txt) -w hands-$(sed "s/://g" macadress.txt)/$(sed "s/://g" macadress.txt) $(cat interface.txt)' &
+
+sleep 3
 
 echo "aireplay attack ready after time -> $(cat attacktime.txt) !!!"
 echo " "
