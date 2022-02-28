@@ -7,7 +7,8 @@ echo "Copy chosen interface and save -> <iface>"
 echo " "
 echo "example -> wlan0"
 echo " "
-iw dev && sleep 2
+iw dev
+sleep 2
 echo " "
 qterminal -e 'nano interface.txt'
 
@@ -76,7 +77,8 @@ echo " "
 echo "Write attack time -> <xy>m <xy>s or <xy>s/m"
 echo " "
 echo "example: nearby -> 1m, almost distant -> 10m, very distant -> 30m"
-echo " " && sleep 2
+echo " "
+sleep 2
 qterminal -e 'nano attacktime.txt'
 echo " "
 mkdir "hands-$(sed 's/://g' macadress.txt)" || echo "(the folder already exists...)\n "
