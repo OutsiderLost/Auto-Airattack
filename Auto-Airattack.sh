@@ -133,7 +133,7 @@ echo " "
 echo "mdk4 attack ready after time -> 10s, and check handshake !!!"
 
 # attack clients mdk4
-cp macadress.txt > macadress02.txt
+cp macadress.txt macadress02.txt
 grep "Client" "$(ls -1 hands-$(sed 's/://g' macadress.txt)"/"$(sed 's/://g' macadress.txt)-[0-9][0-9].log.csv | tail -1)" | cut -d ',' -f 4 | perl -ne 'print if ++$k{$_}==1' >> macadress02.txt
 
 sed -i '/^[[:space:]]*$/d;s/[ ]//g' macadress02.txt
