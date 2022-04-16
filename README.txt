@@ -35,6 +35,10 @@ No problem, if create multiple numbered files, it will automatically find the ne
 The attack time can be changed manually in the script.
 (configured for "almost distant" networks by default)
 (example -> "nearby" networks, it is sufficient to limit the aireplay attack from 8 to 5, and mdk4 to well below 10-15)
+
+**** Version 2 **** adding plus mode !!! -> Attack based on beacon growth or elapsed time? (b/t) ****
+ * * Write attack beacon -> 500 to 10000 * *
+ * * example: nearby -> 1000, almost distant -> 3000, very distant -> 5000 * *
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
 
 Install:
@@ -48,3 +52,4 @@ chmod +x *.sh
 (run)
 ./Auto-Airattack.sh
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
