@@ -276,9 +276,8 @@ sleep 15
 ##### CHECK HANDSHAKE #####
 hscheck
 ###########################
-# echo " "
-# rm /root/airlog-*
-# kill "$(ps aux | grep 'airodump-ng' | sed -n '1p' | awk '{print $2}')"
-# exit
 echo " "
 echo "Final END all process, no capture hs !!! :-("
+rm /root/airlog-*
+kill "$(ps aux | grep 'airodump-ng' | sed -n '1p' | awk '{print $2}')"
+exit
